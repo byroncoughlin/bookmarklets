@@ -3,17 +3,34 @@ javascript: (function () {
     if ((window.location.href).indexOf('zendesk.com/agent/tickets/') == -1){
         alert("This needs to be run on a Zendesk ticket.");
     }else{
-        raw_source = document.documentElement.outerHTML;
+        var currentTicketSource = document.querySelector(".fr-focus").innerHTML;
+        
+        raw_source = currentTicketSource;
 
-        var beforeText='hcVeLQ StyledTextInput-sc-k12n8x-0 fGPLUj" value="';
+        console.log(raw_source);
+        var beforeText='effective on ';
+
+        var ok=true;
+        var type="effectiveDate";
 
         if (raw_source.indexOf(beforeText) == -1){
-            alert("This helper didn't find the Due Date Field.");
-        }else{
+            var beforeText='hcVeLQ StyledTextInput-sc-k12n8x-0 fGPLUj" value="';
+            if (raw_source.indexOf(beforeText) == -1){
+                alert("Didn't find effective date text or due date field on this ticket");
+                ok=false;
+            }else{
+                type="dueDate"
+            }
+        }
+
+        if (ok){
             
             var pos = raw_source.indexOf(beforeText) + beforeText.length;
 
-            var endText = '"><div';
+            var endText = '\n';
+            if (type == "dueDate"){
+                endText = '"><div';
+            }
 
             var dateText = raw_source.substring(pos, raw_source.indexOf(endText, pos));
 
@@ -30,15 +47,15 @@ javascript: (function () {
             var eventDay = ("0" + eventDate.getDate()).slice(-2);
             console.log(eventDay);
 
-            var documentTitle = encodeURIComponent(document.title);
+            var documentTitle = encodeURIComponent((document.title).replace(" – Oscar Health – Zendesk",""));
             
             var newCalLink="https://calendar.google.com/calendar/render?action=TEMPLATE&text="+documentTitle+"&details="+window.location.href+"&dates="+eventYear+eventMonth+eventDay+"/"+eventYear+eventMonth+eventDay;
             
             console.log(newCalLink);
 
             window.open(newCalLink, '_blank');
-            }
-
         }
+
+    }
         
 })();
